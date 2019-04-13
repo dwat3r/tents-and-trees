@@ -22,6 +22,56 @@ easy = puzzle [(0,0),(2,2)] [0,2,0] [1,0,1]
       
 toPuzzle chars = concatMap (\(y, cs) -> map (\(x, _) -> (x,y)) $ filter (\(x, c) -> c == 't') $ zip [0..] cs) $ zip [0..] chars
 
+toSolved chars = concatMap (\(y, cs) -> map (\(x, _) -> (x,y)) $ filter (\(x, c) -> c == 'T') $ zip [0..] cs) $ zip [0..] chars
+
+basicTest = [
+  solve first == firstTents,
+  solve second == secondTents]
+
+fromWebEasy8x8 = 
+  [
+    "     T  ",
+    "  T  t  ",
+    "  ttT tT",
+    "TtT     ",
+    "  t     ",
+    "T TtTtT ",
+    "tt    t ",
+    " T    tT"
+  ]
+
+fromWebEasy8x8puzzle = puzzle (toPuzzle fromWebEasy8x8)
+  [2,1,3,0,2,1,1,2]
+  [1,1,2,2,0,4,0,2]
+
+fromWebHard20x20 = 
+  [
+    "ttT      tT    T TtT",
+    "T    TtT    Tt ttt  ",
+    "     t    Tt tT T  t",
+    "TtT     Tt tT      T",
+    "t    Tt   Tt   T    ",
+    "t      tT  t   t   T",
+    "T  T t     T tT  Ttt",
+    "   t T Tt   t     tT",
+    " TtTt    T  T   T  t",
+    "         t      t  T",
+    "Tt  T TtTtT  Tt tT t",
+    " tT t t t      T   T",
+    "Tt  T T    t   t    ",
+    "t   t    TtT tT tT t",
+    "T TttT Tt t        T",
+    "      t   T  TtT    ",
+    " TtT  T      tt ttT ",
+    "   t    TtT TtT T   ",
+    "T   T Ttt t   t   tT",
+    "t Ttt  tT T TtTtT   "
+  ]
+
+fromWebHard20x20puzzle = puzzle (toPuzzle fromWebHard20x20)
+  [7,2,5,3,3,4,4,3,5,2,7,2,5,2,5,4,4,4,1,8]
+  [5,4,3,5,3,2,5,3,5,1,7,3,3,4,5,3,4,5,4,6]
+
 
 easy8x8 = puzzle (toPuzzle 
     [
