@@ -24,9 +24,9 @@ toPuzzle chars = concatMap (\(y, cs) -> map (\(x, _) -> (x,y)) $ filter (\(x, c)
 
 toSolved chars = concatMap (\(y, cs) -> map (\(x, _) -> (x,y)) $ filter (\(x, c) -> c == 'T') $ zip [0..] cs) $ zip [0..] chars
 
-basicTest = [
-  solve first == firstTents,
-  solve second == secondTents]
+-- basicTest = [
+--   solve first == firstTents,
+--   solve second == secondTents]
 
 fromWebEasy8x8 = 
   [
@@ -39,6 +39,22 @@ fromWebEasy8x8 =
     "tt    t ",
     " T    tT"
   ]
+
+fromWebMedium8x8 = 
+  [
+    "Tt   tT ",
+    " tT     ",
+    "T  ttT T",
+    "t  T  tt",
+    "tT  t T ",
+    "    T   ",
+    "      t ",
+    "    TtT "
+  ]
+
+fromWebMedium8x8puzzle = puzzle (toPuzzle fromWebMedium8x8)
+  [2,1,1,1,2,1,3,1]
+  [2,1,3,1,2,1,0,2]
 
 fromWebEasy8x8puzzle = puzzle (toPuzzle fromWebEasy8x8)
   [2,1,3,0,2,1,1,2]
@@ -194,6 +210,3 @@ tntC15x15 = puzzle (toPuzzle
   ])
   [6, 1, 4, 1, 3, 2, 3, 2, 4, 0, 5, 1, 4, 2, 5]
   [4, 2, 3, 3, 1, 4, 1, 6, 0, 3, 3, 3, 2, 3, 5]
-
-
-tests = undefined
