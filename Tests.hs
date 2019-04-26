@@ -1,7 +1,8 @@
 module Tests where
 
 import qualified Data.Map as M
-import qualified Data.Vector as V
+import qualified Data.Set as S
+import Data.List
 import TentsAndTrees
 
 puzzle tree horizontal vertical = 
