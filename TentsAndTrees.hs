@@ -20,7 +20,7 @@ data Puzzle a = Puzzle {
 makeLenses ''Puzzle
 
 solve puzzle = 
-      step [] tnts
+    step [] tnts
     where
       tnts =   treesAndTents puzzle $
                 filter (not . null . (neighTrees puzzle)) $ 
@@ -61,19 +61,21 @@ reducePuzzle p@Puzzle{..} ts = trace ("reducing " ++ (show (ts, p))) $ Puzzle <$
     reducedHorizontal = validXY $ M.mapWithKey (\x n -> n - (length $ filter ((==x) . fst) ts)) _horizontal
     reducedVertical   = validXY $ M.mapWithKey (\y n -> n - (length $ filter ((==y) . snd) ts)) _vertical
     validXY xy = if M.null $ M.filter (<0) xy then Just xy else Nothing
-    reducedTents = M.foldlWithKey (\m tr trts -> M.insert tr <$> reduceTent trts <*> m) (Just M.empty) _fields
-    reduceTent [] = Just []
-    reduceTent [t] | t `elem` ts = trace ("kept []") $ Just []
-    reduceTent trts = go trts [] []
-
+    computedMults = traceShowId $ foldl (\m t -> M.insert t (M.size $ M.filter (t `elem`) _fields) m) M.empty ts
+    reducedTents = fst $ M.foldlWithKey (\(m, mults) tr trts -> 
+                                          let (rtr, mults') = reduceTent trts mults in (M.insert tr <$> rtr <*> m, mults')) 
+                                  ((Just M.empty, computedMults)) _fields
+    reduceTent [] mults = (Just [], mults)
+    reduceTent [t] mults | t `elem` ts = trace ("kept []") $ (Just [], mults)
+    reduceTent trts mults = go trts [] [] mults
       where
-        mults = traceShowId $ foldl (\m t -> M.insert t (length $ concat $ M.elems $ M.filter (t `elem`) _fields) m) M.empty ts
+        -- map of proposed solution -> amount of trees it belongs to
         -- to remove : valids removed : valids left
-        go [] [] [] = Nothing -- no removed tents are belonging to the solution
-        go [] vts gts = trace ("kept " ++ show gts) $ Just gts
-        go (t:rts) vts gts | t `elem` ts && mults M.! t == 1    = trace ("remove sol " ++ show (t:rts, vts, gts)) $ go [] (t:vts) [] -- empty other possible tents of tree iff it only belongs to this tree and it's not the only one for this
-                           | t `notElem` ts && validTent p ts t = trace ("keep rem "   ++ show (t:rts, vts, gts)) $ go rts vts (t:gts)
-                           | otherwise                          = trace ("remove inv " ++ show (t:rts, vts, gts)) $ go rts vts gts
+        go [] [] [] mults = (Nothing, mults) -- no removed tents are belonging to the solution
+        go [] vts gts mults = trace ("kept " ++ show (gts, mults)) $ (Just gts, mults)
+        go (t:rts) vts gts  mults | t `elem` ts && mults M.! t == 1    = trace ("remove sol " ++ show (t:rts, vts, gts)) $ go rts (t:vts) [] (M.delete t mults) -- empty other possible tents of tree iff it only belongs to this tree and it's not the only one for this
+                                  | t `notElem` ts && validTent p ts t = trace ("keep rem "   ++ show (t:rts, vts, gts)) $ go rts vts (t:gts) mults
+                                  | otherwise                          = trace ("remove inv " ++ show (t:rts, vts, gts)) $ go rts vts gts (M.adjust (subtract 1) t mults)
 
 
 exactTentsByTree p@Puzzle{..} = concat $ filter ((==1) . length) $ M.elems _fields
